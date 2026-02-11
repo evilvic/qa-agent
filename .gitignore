@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Test artifacts (screenshots, video, traces)
+artifacts/
+*.har
+*.mp4
+*.webm
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.sw?
+*~
+
+# Logs
+*.log
+
+# Bun
+bun.lock
+
+# Misc
+*.tmp
+*.bak
