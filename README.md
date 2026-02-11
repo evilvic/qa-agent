@@ -29,7 +29,9 @@ Opcionales: `ARTIFACTS_DIR` (default: `artifacts`), `LLM_MODEL` (default: `gpt-4
 
 ```bash
 cd backend
-pip install fastapi uvicorn python-dotenv browser-use pytest pytest-asyncio
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 

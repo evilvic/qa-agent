@@ -23,17 +23,18 @@ frontend/             # Vue 3 frontend — Vite SPA
 ### Backend (backend/)
 
 ```bash
+# Setup (one time)
+cd backend && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+
 # Start the API server
-cd backend && uvicorn main:app --reload
+cd backend && source .venv/bin/activate && uvicorn main:app --reload
 
 # Run all tests
-cd backend && pytest
+cd backend && source .venv/bin/activate && pytest
 
 # Run a single test
-cd backend && pytest tests/test_smoke.py::test_home_smoke -v
+cd backend && source .venv/bin/activate && pytest tests/test_smoke.py::test_home_smoke -v
 ```
-
-No `requirements.txt` exists. Key Python dependencies: `fastapi`, `pydantic`, `python-dotenv`, `browser-use` (provides `Agent`, `ChatOpenAI`, `Browser`), `pytest`, `pytest-asyncio`.
 
 ### Frontend (frontend/)
 

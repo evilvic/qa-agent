@@ -19,6 +19,7 @@ load_dotenv(find_dotenv(usecwd=True), override=True)
 ARTIFACTS_ROOT = Path(os.getenv("ARTIFACTS_DIR", "artifacts")).resolve()
 ARTIFACTS_ROOT.mkdir(parents=True, exist_ok=True)
 SEMAPHORE = asyncio.Semaphore(int(os.getenv("MAX_CONCURRENCY", "1")))
+CHROME_PATH = os.getenv("CHROME_PATH", "")
 
 # ---------- Models ----------
 class RunRequest(BaseModel):
@@ -161,7 +162,7 @@ def _extract_last_json_block(text: str):
 app = FastAPI(title="Minu QA AI", version="0.4.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # Frontend Vite
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],  # Frontend Vite
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -200,7 +201,7 @@ async def run(req: RunRequest):
     start = time.perf_counter()
 
     async with SEMAPHORE:
-        browser = Browser(
+        browser_kwargs = dict(
             headless=not req.headful,
             allowed_domains=allowed,
             window_size=IPHONE_VIEWPORT,          # 👈 iPhone-like
@@ -208,6 +209,9 @@ async def run(req: RunRequest):
             record_har_path=str(run_dir / "trace.har"),
             traces_dir=str(traces_dir),
         )
+        if CHROME_PATH:
+            browser_kwargs["executable_path"] = CHROME_PATH
+        browser = Browser(**browser_kwargs)
         llm = ChatOpenAI(model=llm_model)
 
         agent = Agent(
