@@ -1,0 +1,161 @@
+/*
+ * Design Tokens — QA Agent
+ *
+ * Sistema de variables CSS que codifica las decisiones de experiencia.
+ * Cada token tiene nombre semántico (qué significa) no descriptivo (cómo se ve).
+ * Consumido por todos los componentes. Un solo lugar para cambiar el look.
+ */
+
+:root {
+  /* ─── Status: Pass ─── */
+  --color-pass:       #22c55e;
+  --color-pass-bg:    #f0fdf4;
+  --color-pass-border:#86efac;
+  --color-pass-text:  #15803d;
+
+  /* ─── Status: Fail ─── */
+  --color-fail:       #ef4444;
+  --color-fail-bg:    #fef2f2;
+  --color-fail-border:#fca5a5;
+  --color-fail-text:  #b91c1c;
+
+  /* ─── Status: Error (sistema, no del test) ─── */
+  --color-error:       #f59e0b;
+  --color-error-bg:    #fffbeb;
+  --color-error-border:#fcd34d;
+  --color-error-text:  #92400e;
+
+  /* ─── Status: Running ─── */
+  --color-running:       #3b82f6;
+  --color-running-bg:    #eff6ff;
+  --color-running-border:#93c5fd;
+  --color-running-text:  #1d4ed8;
+
+  /* ─── Status: Neutro (sin ejecutar) ─── */
+  --color-neutral:       #6b7280;
+  --color-neutral-bg:    #f9fafb;
+  --color-neutral-border:#d1d5db;
+  --color-neutral-text:  #6b7280;
+
+  /* ─── Superficies ─── */
+  --surface-page:    #ffffff;
+  --surface-card:    #ffffff;
+  --surface-section: #f9fafb;
+  --surface-elevated:#ffffff;
+  --surface-overlay: rgba(0, 0, 0, 0.4);
+
+  /* ─── Bordes ─── */
+  --border-default:  #e5e7eb;
+  --border-hover:    #d1d5db;
+  --border-focus:    #3b82f6;
+
+  /* ─── Texto ─── */
+  --text-primary:    #111827;
+  --text-secondary:  #6b7280;
+  --text-disabled:   #9ca3af;
+  --text-inverse:    #ffffff;
+  --text-link:       #2563eb;
+  --text-link-hover: #1d4ed8;
+
+  /* ─── Acción (botones primarios) ─── */
+  --action-primary:       #3b82f6;
+  --action-primary-hover: #2563eb;
+  --action-primary-active:#1d4ed8;
+  --action-focus-ring:    rgba(59, 130, 246, 0.4);
+  --action-danger:        #ef4444;
+  --action-danger-hover:  #dc2626;
+
+  /* ─── Tipografía ─── */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs:   12px;
+  --font-size-sm:   14px;
+  --font-size-base: 16px;
+  --font-size-lg:   18px;
+  --font-size-xl:   20px;
+  --font-size-2xl:  24px;
+
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  --line-height-tight:  1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed:1.625;
+
+  /* ─── Espaciado (múltiplos de 4px) ─── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+
+  /* ─── Radios ─── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* ─── Sombras ─── */
+  --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md:  0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg:  0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* ─── Transiciones ─── */
+  --transition-fast:   150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow:   300ms ease;
+
+  /* ─── Layout ─── */
+  --content-max-width: 960px;
+  --topbar-height:     56px;
+
+  /* ─── Breakpoints (referencia, no usables como vars en media queries) ─── */
+  /* Tablet: max-width 768px */
+  /* Desktop: min-width 769px */
+}
+
+/* ─── Animaciones globales ─── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Reset mínimo ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Accesibilidad: respeta preferencia de movimiento reducido ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

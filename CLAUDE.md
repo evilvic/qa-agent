@@ -1,26 +1,32 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
-## Project Overview
+## Product Vision
 
-AI-powered QA automation agent for the **minu** web app. An LLM-driven browser agent (via `browser_use` + OpenAI) performs login, navigates the app, and returns structured screen descriptions plus task results. A Vue 3 frontend provides a UI for submitting test instructions and viewing results.
+AI-powered QA automation platform. An LLM-driven browser agent executes test cases against any web app, evaluates pass/fail with evidence, and accumulates memory across executions to optimize cost and speed. See `docs/CONTEXT.md` for full product context.
 
-## Repository Structure
+**This is an app-agnostic product.** No references to specific target apps in code, prompts, or docs.
 
-```
-backend/              # Python backend — FastAPI + browser_use agent
-  main.py             # API server: /healthz, POST /run
-  tests/              # pytest async tests (browser_use integration)
-frontend/             # Vue 3 frontend — Vite SPA
-  src/
-    App.vue           # Main component (form + results display)
-    api.js            # Axios client hitting localhost:8000
-```
+## Documentation System
+
+| File | Purpose |
+|------|---------|
+| `docs/PLAN.md` | Master execution plan — phases, domain model, success criteria |
+| `docs/CONTEXT.md` | Product context — vision, competitor analysis, principles |
+| `docs/DECISIONS.md` | Decision log — every decision with trade-offs and status |
+| `docs/PROGRESS.md` | Chronological progress — what was done, when, blockers |
+| `docs/phases/PHASE-N.md` | Phase detail — tasks, criteria, deliverables |
+
+**Rules:**
+- Every architectural decision goes in DECISIONS.md before implementation
+- Every session's work gets logged in PROGRESS.md
+- Phase files are the source of truth for what to build and in what order
+- CLAUDE.md stays focused on technical guidance, not product vision
 
 ## Commands
 
-### Backend (backend/)
+### Backend (from repo root)
 
 ```bash
 # Setup (one time)
@@ -36,7 +42,9 @@ cd backend && source .venv/bin/activate && pytest
 cd backend && source .venv/bin/activate && pytest tests/test_smoke.py::test_home_smoke -v
 ```
 
-### Frontend (frontend/)
+Tests require Playwright browsers installed (`playwright install chromium`) and valid credentials in `backend/.env`. They are async (`pytest.ini` sets `asyncio_mode = auto`) and launch real browser sessions against the target app.
+
+### Frontend (from repo root)
 
 ```bash
 cd frontend && bun install
@@ -46,22 +54,48 @@ cd frontend && bun run build    # Production build
 
 ## Environment Variables
 
-The backend reads from `.env` (via `python-dotenv`). Required:
+The backend reads from `backend/.env` (via `python-dotenv`). Copy `backend/.env.example` to get started.
 
-| Variable | Purpose |
-|---|---|
-| `TEST_BASE_URL` | Target app URL (e.g., `https://pwa.minu.mx`) |
-| `TEST_USER_EMAIL` | Login email |
-| `TEST_USER_PASSWORD` | Login password |
-| `OPENAI_API_KEY` | OpenAI API key for the LLM agent |
+**Required:** `TEST_BASE_URL`, `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, `OPENAI_API_KEY`
 
-Optional: `TEST_LOGIN_PATH` (login route, e.g. `/login`), `ARTIFACTS_DIR` (default: `artifacts`), `LLM_MODEL` (default: `gpt-4.1-mini`), `MAX_CONCURRENCY` (default: `1`).
+**Optional:**
+- `TEST_LOGIN_PATH` — login route (default: none)
+- `ARTIFACTS_DIR` — artifacts storage path (default: `artifacts`)
+- `LLM_MODEL` — default model (default: `gpt-4.1-mini`)
+- `MAX_CONCURRENCY` — concurrent runs (default: `1`)
+- `CHROME_PATH` — custom Chrome/Chromium binary path
+- `AGENT_TIMEOUT` — max seconds per agent run (default: `120`)
 
-## Architecture Notes
+## Architecture
 
-- **POST /run** is the core endpoint. It builds a detailed Spanish-language task prompt (`_make_task`), launches a `browser_use.Agent` with an iPhone-sized viewport (390x844), and collects screenshots, video, HAR, and Playwright traces into a timestamped `artifacts/<run_id>/` directory.
-- The agent returns two JSON blocks: a `ScreenDescription` (validated via Pydantic `output_model_schema`) and a flexible task result (extracted by `_extract_last_json_block`).
-- Concurrency is controlled by an `asyncio.Semaphore`.
-- The frontend talks to `http://127.0.0.1:8000` and resolves screenshot URLs through `/artifacts/` static file serving.
-- Tests are async (`pytest.ini` sets `asyncio_mode = auto`) and use the same `browser_use` agent directly.
-- All agent task prompts are written in Spanish and include anti-loop, idempotent navigation, and budget rules.
+### Current state (PoC)
+
+- **Backend:** FastAPI with single `POST /run` endpoint. Uses `browser_use.Agent` + `ChatOpenAI`.
+- **Frontend:** Vue 3 SPA (Vite + bun). Single `App.vue` component.
+- **No persistence.** Results only exist in memory during the session.
+
+### Target state (MVP — Fase 1)
+
+- **Backend:** FastAPI with CRUD endpoints for Projects, Test Cases, Runs. SQLite via SQLModel.
+- **Frontend:** Vue 3 with Vue Router. Views for projects, test cases, run history, run detail.
+- **Persistence:** SQLite database at `backend/data/qa_agent.db`.
+- **Pass/fail:** LLM evaluates test result against expected outcome.
+
+See `docs/PLAN.md` for full architecture evolution and `docs/phases/PHASE-1.md` for current phase detail.
+
+### Key patterns
+
+- Agent prompts are in **Spanish**. All user-facing text is in Spanish.
+- `browser_use.Agent` is the core dependency for browser automation.
+- Artifacts (screenshots, video, HAR, traces) are saved to `artifacts/<run_id>/`.
+- Concurrency controlled by `asyncio.Semaphore`.
+- Prompt builder lives in `backend/prompt.py` (to be extracted from `main.py`).
+
+## Code Conventions
+
+- **Language:** Python 3.12+ (backend), JavaScript/Vue 3 (frontend)
+- **API style:** RESTful, snake_case in Python, camelCase in JavaScript
+- **Models:** Pydantic for validation, SQLModel for persistence
+- **Async:** All agent operations are async
+- **Error handling:** Never return generic 500s. Always structured error responses.
+- **Logging:** Structured JSON logging via Python `logging` module
